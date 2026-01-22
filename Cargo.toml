@@ -1,0 +1,12 @@
+[package]
+name = "folco-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+icon-sys = { git = "https://github.com/ecoates2/icon-sys.git", branch = "main" }
+folco-renderer = { git = "https://github.com/ecoates2/folco-renderer.git", branch = "main" }
+
+# clap = { version = "4.5.54", features = ["derive"] }
+thiserror = "2.0.18"
+image = "0.25.2"
