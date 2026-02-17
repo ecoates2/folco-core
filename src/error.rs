@@ -48,4 +48,8 @@ pub enum Error {
     /// Folder settings error from icon-sys.
     #[error("folder settings error: {0}")]
     FolderSettings(#[from] icon_sys::folder_settings::FolderSettingsError),
+
+    /// Icon rendering error from folco-renderer.
+    #[error("rendering error: {0}")]
+    Render(#[from] folco_renderer::RenderError),
 }

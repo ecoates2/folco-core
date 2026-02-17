@@ -9,7 +9,7 @@ use crate::convert::{convert_icon_set, convert_icon_set_to_sys};
 use crate::error::{Error, Result};
 use crate::progress::{Progress, ProgressSender};
 
-use folco_renderer::{Configurable, CustomizationProfile, IconCustomizer, IconSet as RendererIconSet};
+use folco_renderer::{Configurable, CustomizationProfile, IconBase, IconCustomizer, IconSet as RendererIconSet};
 use icon_sys::folder_settings::{FolderSettingsProvider, PlatformFolderSettingsProvider};
 
 use std::path::{Path, PathBuf};
@@ -136,8 +136,9 @@ impl CustomizationContextBuilder {
         let cache = IconCache::new(cache_config);
         let renderer_icons = cache.get_renderer_icon_set()?;
 
-        // Create the customizer
-        let customizer = IconCustomizer::new(renderer_icons);
+        // Create the customizer with the platform-specific surface color
+        let icon_base = IconBase::new(renderer_icons, crate::sys::SURFACE_COLOR);
+        let customizer = IconCustomizer::new(icon_base);
 
         // Create the folder settings provider
         let folder_provider = PlatformFolderSettingsProvider::new();
@@ -239,8 +240,8 @@ impl CustomizationContext {
     ///
     /// This applies all active customizations and returns the result.
     /// The returned icon set is in `folco-renderer` format.
-    pub fn render(&mut self) -> RendererIconSet {
-        self.customizer.render_all()
+    pub fn render(&mut self) -> Result<RendererIconSet> {
+        Ok(self.customizer.render_all()?)
     }
 
     /// Customizes the icons for the specified folders.
@@ -269,7 +270,10 @@ impl CustomizationContext {
         self.apply_profile(profile);
 
         // Render the customized icons
-        let rendered = self.render();
+        let rendered = match self.render() {
+            Ok(icons) => icons,
+            Err(e) => return vec![Err(e)],
+        };
 
         // Convert to system format
         let sys_icons = convert_icon_set_to_sys(&rendered);
@@ -405,7 +409,8 @@ impl CustomizationContext {
     pub fn refresh_cache(&mut self) -> Result<()> {
         let sys_icons = self.cache.refresh()?;
         let renderer_icons = convert_icon_set(&sys_icons);
-        self.customizer = IconCustomizer::new(renderer_icons);
+        let icon_base = IconBase::new(renderer_icons, crate::sys::SURFACE_COLOR);
+        self.customizer = IconCustomizer::new(icon_base);
         Ok(())
     }
 
@@ -454,7 +459,23 @@ impl CustomizationContext {
         // Apply the profile and render
         let _ = progress.send(Progress::Rendering).await;
         self.apply_profile(profile);
-        let rendered = self.render();
+        let rendered = match self.render() {
+            Ok(icons) => icons,
+            Err(e) => {
+                let _ = progress
+                    .send(Progress::RenderFailed {
+                        error: e.to_string(),
+                    })
+                    .await;
+                let _ = progress
+                    .send(Progress::Completed {
+                        succeeded: 0,
+                        failed: total,
+                    })
+                    .await;
+                return;
+            }
+        };
         let sys_icons = convert_icon_set_to_sys(&rendered);
 
         let mut succeeded = 0usize;

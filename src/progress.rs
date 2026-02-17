@@ -17,6 +17,12 @@ pub enum Progress {
     /// Rendering icons (happens once before processing folders).
     Rendering,
 
+    /// Icon rendering failed (e.g., invalid SVG or emoji).
+    RenderFailed {
+        /// Error message describing why rendering failed.
+        error: String,
+    },
+
     /// Processing a specific folder.
     Processing {
         /// Current item index (0-based).

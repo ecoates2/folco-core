@@ -1,7 +1,13 @@
 //! Windows-specific system icon metadata.
 
-use folco_renderer::RectPx;
+use folco_renderer::{RectPx, SurfaceColor};
 use icon_sys::icon::sys::windows::WindowsIconSize;
+
+/// The default Windows folder icon surface color: HSL(44°, 100%, 72%).
+///
+/// This is the golden-yellow hue of the standard Windows folder icon,
+/// used as the reference point for computing HSL mutation deltas.
+pub const SURFACE_COLOR: SurfaceColor = SurfaceColor::new(44.0, 1.0, 0.72);
 
 /// Returns the content bounds for a Windows system folder icon.
 ///

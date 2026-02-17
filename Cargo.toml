@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-icon-sys = { git = "https://github.com/ecoates2/icon-sys.git", branch = "main", features = ["folder-settings"] }
-folco-renderer = { git = "https://github.com/ecoates2/folco-renderer.git", branch = "main" }
+#icon-sys = { git = "https://github.com/ecoates2/icon-sys.git", branch = "main", features = ["folder-settings"] }
+icon-sys = { path = "../icon-sys", features = ["folder-settings"] }
+#folco-renderer = { git = "https://github.com/ecoates2/folco-renderer.git", branch = "main" }
+folco-renderer = { path = '../folco-renderer', features = ["twemoji"]}
 
 thiserror = "2.0.18"
 image = "0.25.2"

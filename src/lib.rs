@@ -32,6 +32,7 @@
 //! ```
 
 mod cache;
+pub mod color;
 mod context;
 mod convert;
 mod error;
@@ -46,6 +47,6 @@ pub use error::{Error, Result};
 // Re-export key types from folco-renderer for convenience
 // This allows consumers to use profiles without importing the renderer crate directly
 pub use folco_renderer::{
-    CustomizationProfile, DecalSettings, HueRotationSettings, OverlaySettings,
-    SerializablePosition, SerializableSvgSource,
+    CustomizationProfile, DecalSettings, HslMutationSettings, IconBase, OverlaySettings,
+    SerializablePosition, SerializableSvgSource, SurfaceColor,
 };
