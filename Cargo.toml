@@ -9,12 +9,18 @@ icon-sys = { path = "../icon-sys", features = ["folder-settings"] }
 #folco-renderer = { git = "https://github.com/ecoates2/folco-renderer.git", branch = "main" }
 folco-renderer = { path = '../folco-renderer', features = ["twemoji"]}
 
+clap = { version = "4", features = ["derive"], optional = true }
+palette = { version = "0.7", optional = true }
 thiserror = "2.0.18"
 image = "0.25.2"
 directories = "6"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync"] }
+
+[features]
+clap = ["dep:clap", "dep:palette"]
+jsonschema = ["folco-renderer/jsonschema"]
 
 [dev-dependencies]
 tempfile = "3"

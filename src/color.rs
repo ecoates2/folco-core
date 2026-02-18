@@ -210,6 +210,62 @@ pub struct FolderColorMetadata {
     pub target_lightness: f32,
 }
 
+#[cfg(feature = "clap")]
+fn hsl_to_rgb(h: f32, s: f32, l: f32) -> (u8, u8, u8) {
+    use palette::{FromColor, Hsl, Srgb};
+
+    let hsl = Hsl::new(h, s, l);
+    let rgb = Srgb::from_color(hsl);
+    let (r, g, b) = rgb.into_components();
+    (
+        (r * 255.0).round() as u8,
+        (g * 255.0).round() as u8,
+        (b * 255.0).round() as u8,
+    )
+}
+
+#[cfg(feature = "clap")]
+impl clap::ValueEnum for FolderColor {
+    fn value_variants<'a>() -> &'a [Self] {
+        Self::all()
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        let name = match self {
+            FolderColor::Red => "red",
+            FolderColor::Pink => "pink",
+            FolderColor::Purple => "purple",
+            FolderColor::DeepPurple => "deep-purple",
+            FolderColor::Indigo => "indigo",
+            FolderColor::Blue => "blue",
+            FolderColor::LightBlue => "light-blue",
+            FolderColor::Cyan => "cyan",
+            FolderColor::Teal => "teal",
+            FolderColor::Green => "green",
+            FolderColor::LightGreen => "light-green",
+            FolderColor::Lime => "lime",
+            FolderColor::Yellow => "yellow",
+            FolderColor::Amber => "amber",
+            FolderColor::Orange => "orange",
+            FolderColor::DeepOrange => "deep-orange",
+            FolderColor::Brown => "brown",
+            FolderColor::Grey => "grey",
+            FolderColor::BlueGrey => "blue-grey",
+            FolderColor::White => "white",
+            FolderColor::Black => "black",
+        };
+
+        let (h, s, l) = self.target_hsl();
+        let (r, g, b) = hsl_to_rgb(h, s, l);
+        let help = format!(
+            "\x1b[48;2;{r};{g};{b}m  \x1b[0m {}",
+            self.display_name()
+        );
+
+        Some(clap::builder::PossibleValue::new(name).help(help))
+    }
+}
+
 impl std::fmt::Display for FolderColor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.display_name())
